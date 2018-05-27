@@ -96,7 +96,7 @@ namespace TetrisWebApi.Controllers
         }
 
         [HttpGet("topScores")]
-        public Task<IActionResult> GetTopScores()
+        public async Task<IActionResult> GetTopScores()
         {
             if (!ModelState.IsValid)
             {
