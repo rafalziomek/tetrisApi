@@ -16,6 +16,7 @@ namespace TetrisWebApi.Controllers
     {
         private readonly TetrisWebContext _context;
         private ScoresController scoresController;
+
         public UsersController(TetrisWebContext context)
         {
             _context = context;
@@ -26,7 +27,6 @@ namespace TetrisWebApi.Controllers
         [HttpGet]
         public IEnumerable<User> GetUsers()
         {
-            
             var users = _context.Users;
             return users;
         }
@@ -68,8 +68,35 @@ namespace TetrisWebApi.Controllers
             return Ok(scores);
         }
 
+        [HttpGet("name/{name}/score")]
+        public async Task<IActionResult> GetUserScoreByName([FromRoute] string name)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await _context.Users
+                .Include(usr => usr.Scores)
+                .SingleOrDefaultAsync(m => m.Name == name);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var scores = user.Scores;
+
+            if (scores == null || !scores.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(scores);
+        }
+
         [HttpGet("topScores")]
-        public async Task<IActionResult> GetTopScores()
+        public Task<IActionResult> GetTopScores()
         {
             if (!ModelState.IsValid)
             {

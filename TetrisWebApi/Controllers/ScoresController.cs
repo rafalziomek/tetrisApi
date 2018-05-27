@@ -18,7 +18,7 @@ namespace TetrisWebApi.Controllers
         public List<Score> getTopTenScoresById(int id)
         {
             List<Score> scores = _context.Score
-                .Where(score => score.User.Id == id)
+                .Where(score => score.UserId == id)
                 .Select(score => score)
                 .OrderByDescending(score => score.Value)
                 .Take(10)

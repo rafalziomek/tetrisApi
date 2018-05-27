@@ -11,9 +11,10 @@ using TetrisWebApi.Models;
 namespace TetrisWebApi.Migrations
 {
     [DbContext(typeof(TetrisWebContext))]
-    partial class TetrisWebContextModelSnapshot : ModelSnapshot
+    [Migration("20180527165827_deleteField")]
+    partial class deleteField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
