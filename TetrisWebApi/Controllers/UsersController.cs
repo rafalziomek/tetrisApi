@@ -50,6 +50,24 @@ namespace TetrisWebApi.Controllers
             return Ok(user);
         }
 
+        [HttpGet("username/{username}")]
+        public async Task<IActionResult> GetUser([FromRoute] string username)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await _context.Users.SingleOrDefaultAsync(m => m.Name == username);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
+        }
+
         [HttpGet("{id}/score")]
         public async Task<IActionResult> GetUserScore([FromRoute] int id)
         {
@@ -77,7 +95,6 @@ namespace TetrisWebApi.Controllers
             }
 
             var user = await _context.Users
-                .Include(usr => usr.Scores)
                 .SingleOrDefaultAsync(m => m.Name == name);
 
             if (user == null)
@@ -85,7 +102,8 @@ namespace TetrisWebApi.Controllers
                 return NotFound();
             }
 
-            var scores = user.Scores;
+            var id = user.Id;
+            var scores = scoresController.getTopTenScoresById(id);
 
             if (scores == null || !scores.Any())
             {
@@ -155,12 +173,17 @@ namespace TetrisWebApi.Controllers
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
-            }
-            
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            } 
+            if (!UserNameExists(user.Name))
+            {
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+                return Ok(user);
+            }
+
+            var userToReturn = _context.Users.SingleOrDefaultAsync(m => m.Name == user.Name);
+            return Ok(userToReturn);
         }
 
         [HttpPost("{id}/score")]
@@ -225,6 +248,11 @@ namespace TetrisWebApi.Controllers
         private bool UserExists(int id)
         {
             return _context.Users.Any(e => e.Id == id);
+        }
+
+        private bool UserNameExists(string name)
+        {
+            return _context.Users.Any(e => e.Name == name);
         }
     }
 }
